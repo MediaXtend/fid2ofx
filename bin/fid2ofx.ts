@@ -195,10 +195,13 @@ fs.open(csvPath, 'r', (err: NodeJS.ErrnoException | null) => {
               .ele('DTEND').txt(ofxDateFormatter(newestRecord.operationDate)).up();
 
     records.forEach((r: Record) => {
-      const transId: string = `${r.operationName}${ofxDateFormatter(r.operationDate)}`;
       const nameMatches = r.operationName.match(/^(.+)  ([A-Z ]+)$/);
       const name: string = (nameMatches !== null ? nameMatches[1] : r.operationName);
       const memo: string = (nameMatches !== null ? nameMatches[2] : '');
+      const transId: string = (nameMatches !== null
+        ? `${name}${ofxDateFormatter(r.operationDate)}`
+        : `${r.operationName}${ofxDateFormatter(r.operationDate)}`
+      );
       transactionsList.ele('STMTTRN')
         .ele('TRNTYPE').txt(guessTransactionType(r)).up()
         .ele('DTPOSTED').txt(ofxDateFormatter(r.operationDate)).up()
