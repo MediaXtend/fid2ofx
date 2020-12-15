@@ -2,6 +2,7 @@ lib-cov
 *.seed
 *.log
 *.csv
+*.ofx
 *.dat
 *.out
 *.pid
