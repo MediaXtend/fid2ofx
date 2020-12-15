@@ -10,12 +10,12 @@
     "build-ts": "tsc",
     "debug": "yarn build && yarn watch-debug",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
-    "fid2ofx": "node bin/fid2ofx.ts data/test.csv",
-    "fid2ofx-debug": "nodemon --inspect bin/fid2ofx.ts data/test.csv",
+    "fid2ofx": "node bin/fid2ofx.ts --csv data/test.csv --last-balance 8976.54",
+    "fid2ofx-debug": "nodemon --inspect bin/fid2ofx.ts --csv data/test.csv --last-balance 8976.54",
     "start": "yarn fid2ofx",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"yarn watch-ts\" \"yarn watch-node\"",
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"yarn watch-ts\" \"yarn fid2ofx-debug data/test.csv\"",
-    "watch-node": "nodemon bin/fid2ofx.ts data/test.csv",
+    "watch-node": "nodemon bin/fid2ofx.ts --csv data/test.csv --last-balance 8976.54",
     "watch-ts": "tsc -w"
   },
   "bin": {
@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "csv-parse": "^4.14.1",
+    "iconv-lite": "^0.6.2",
+    "xmlbuilder2": "^2.4.0",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
