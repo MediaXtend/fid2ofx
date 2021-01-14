@@ -17,9 +17,9 @@ const dateParser = (value: string): Date => {
 
 const config: Config = {
   csv: {
-    encoding: 'latin1',
-    delimiter: ';',
-    lineBreak: '\r\n',
+    encoding: "latin1",
+    delimiter: ";",
+    lineBreak: "\r\n",
   },
   columns: {
     accountId: {
@@ -48,7 +48,7 @@ const config: Config = {
     },
     amount: {
       name: "Montant",
-      parser: (value: string): number => (parseFloat(value.replace(/,/, '.'))),
+      parser: (value: string): number => (parseFloat(value.replace(/,/, "."))),
     },
     operationDate: {
       name: "Date d'opération",
@@ -69,15 +69,15 @@ const config: Config = {
   },
   ofx: {
     headers: {
-      OFXHEADER: '100',
-      DATA: 'OFXSGML',
-      VERSION: '102',
-      SECURITY: 'NONE',
-      ENCODING: 'UTF-8', //'USASCII',
-      CHARSET: '1252',
-      COMPRESSION: 'NONE',
-      OLDFILEUID: 'NONE',
-      NEWFILEUID: 'NONE',
+      OFXHEADER: "100",
+      DATA: "OFXSGML",
+      VERSION: "102",
+      SECURITY: "NONE",
+      ENCODING: "UTF-8", //'USASCII',
+      CHARSET: "1252",
+      COMPRESSION: "NONE",
+      OLDFILEUID: "NONE",
+      NEWFILEUID: "NONE",
     },
   },
 };

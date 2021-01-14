@@ -1,33 +1,33 @@
 #!/usr/bin/env ts-node-script
 /// <reference types="./types/config" />
-import yargs from 'yargs/yargs';
-import { exit } from 'yargs';
-import fs from 'fs';
-import parse from 'csv-parse/lib/sync';
-import { create as createXML } from 'xmlbuilder2';
+import yargs from "yargs/yargs";
+import { exit } from "yargs";
+import fs from "fs";
+import parse from "csv-parse/lib/sync";
+import { create as createXML } from "xmlbuilder2";
 // import iconv from 'iconv-lite';
 
-import config from './config';;
+import config from "./config";
 interface Arguments {
   csv: string;
 }
 const argv: Arguments = yargs(process.argv.slice(2)).options({
-  csv: { type: 'string', desc: 'CSV file', demandOption: true },
-  'last-balance': { type: 'number', desc: 'Account balance at last operation', demandOption: true },
+  csv: { type: "string", desc: "CSV file", demandOption: true },
+  "last-balance": { type: "number", desc: "Account balance at last operation", demandOption: true },
 }).argv;
 
-const csvPath: string = ('csv' in argv ? argv.csv : '');
+const csvPath: string = ("csv" in argv ? argv.csv : "");
 if (csvPath.length === 0) {
-  throw new Error('CSV file path is missing');
+  throw new Error("CSV file path is missing");
 }
 
-const lastBalance: number = ('last-balance' in argv ? parseFloat(argv['last-balance']) : 0);
+const lastBalance: number = ("last-balance" in argv ? parseFloat(argv["last-balance"]) : 0);
 if (lastBalance === 0) {
-  throw new Error('Last balance can’t be at zero');
+  throw new Error("Last balance can’t be at zero");
 }
 
-fs.open(csvPath, 'r', (err: NodeJS.ErrnoException | null) => {
-  if (err && err.code === 'ENOENT') {
+fs.open(csvPath, "r", (err: NodeJS.ErrnoException | null) => {
+  if (err && err.code === "ENOENT") {
     const error = new Error(`The file "${csvPath}" does not exists.`);
     console.error(error.message);
     exit(1, error);
@@ -42,10 +42,10 @@ fs.open(csvPath, 'r', (err: NodeJS.ErrnoException | null) => {
       throw err;
     }
 
-    const pathLastSlashIndex: number = csvPath.lastIndexOf('/');
+    const pathLastSlashIndex: number = csvPath.lastIndexOf("/");
     const fileBaseName: string = csvPath.substr(
       pathLastSlashIndex !== undefined ? pathLastSlashIndex + 1 : 0,
-      csvPath.lastIndexOf('.') - pathLastSlashIndex - 1
+      csvPath.lastIndexOf(".") - pathLastSlashIndex - 1
     );
 
     const csvData: string = data.toString();
@@ -61,7 +61,7 @@ fs.open(csvPath, 'r', (err: NodeJS.ErrnoException | null) => {
     const everyLinesHaveEndingSemicolon: boolean = lines.reduce((hasEndingSemicolon: boolean, line: string) => (hasEndingSemicolon && semicolonEndingLine.test(line)), true);
     
     const csvClean: string = (everyLinesHaveEndingSemicolon
-      ? lines.map((line: string) => line.replace(semicolonEndingLine, ''))
+      ? lines.map((line: string) => line.replace(semicolonEndingLine, ""))
       : lines
     ).join(config.csv.lineBreak);
 
@@ -95,17 +95,17 @@ fs.open(csvPath, 'r', (err: NodeJS.ErrnoException | null) => {
     }
     const emptyRecord: Record = {
       accountId: null,
-      accountType: '',
-      currency: '',
+      accountType: "",
+      currency: "",
       amount: 0,
       operationDate: new Date(1970, 0, 1),
       valueDate: new Date(1970, 0, 1),
       checkNumber: null,
-      operationName: '',
+      operationName: "",
     };
     const rawRecords: Array<RawRecord> = parse(csvClean, { delimiter: config.csv.delimiter, trim: true, columns: true });
     if (rawRecords.length === 0) {
-      throw new Error('CSV file is empty');
+      throw new Error("CSV file is empty");
     }
     const records: Array<Record> = rawRecords.map((rawRecord: RawRecord) => (
       Object.keys(rawRecord)
@@ -143,12 +143,12 @@ fs.open(csvPath, 'r', (err: NodeJS.ErrnoException | null) => {
     };
     const ofxDateFormatter = (date: Date): string => {
       const year: string = date.getFullYear().toString();
-      const month: string = date.getMonth().toString().padStart(2, '0');
-      const day: string = date.getDate().toString().padStart(2, '0');
+      const month: string = date.getMonth().toString().padStart(2, "0");
+      const day: string = date.getDate().toString().padStart(2, "0");
       return `${year}${month}${day}120000`;
     };
     const hashAsNumbers = (s: string): string => {
-      const hashCode: number = s.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+      const hashCode: number = s.split("").reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0);
       return `${Math.abs(hashCode)}`;
     };
 
@@ -159,75 +159,75 @@ fs.open(csvPath, 'r', (err: NodeJS.ErrnoException | null) => {
     // console.log(`first record operationDate: ${ofxDateFormatter(records[0].operationDate)}`);
 
     // build OFX
-    const ofx = createXML().ele('OFX');
+    const ofx = createXML().ele("OFX");
     ofx
-      .ele('SIGNONMSGSRQV1')
-        .ele('SONRQ')
-          .ele('STATUS')
-            .ele('CODE').txt('0').up()
-            .ele('SEVERITY').txt('INFO').up()
+      .ele("SIGNONMSGSRQV1")
+        .ele("SONRQ")
+          .ele("STATUS")
+            .ele("CODE").txt("0").up()
+            .ele("SEVERITY").txt("INFO").up()
           .up()
-          .ele('DTSERVER').txt(ofxDateFormatter(newestRecord.operationDate)).up()
-          .ele('LANGUAGE').txt('FRA').up();
+          .ele("DTSERVER").txt(ofxDateFormatter(newestRecord.operationDate)).up()
+          .ele("LANGUAGE").txt("FRA").up();
 
     if (newestRecord.accountId === null) {
-      throw new Error('Can not find bank account.');
+      throw new Error("Can not find bank account.");
     }
 
     const transactionsList = ofx
-      .ele('BANKMSGSRQV1')
-        .ele('STMTTRNRS')
-          .ele('TRNUID').txt(ofxDateFormatter(newestRecord.operationDate)).up()
-          .ele('STATUS')
-            .ele('CODE').txt('0').up()
-            .ele('SEVERITY').txt('INFO').up()
+      .ele("BANKMSGSRQV1")
+        .ele("STMTTRNRS")
+          .ele("TRNUID").txt(ofxDateFormatter(newestRecord.operationDate)).up()
+          .ele("STATUS")
+            .ele("CODE").txt("0").up()
+            .ele("SEVERITY").txt("INFO").up()
           .up()
-          .ele('STMTRS')
-            .ele('CURDEF').txt(newestRecord.currency).up()
-            .ele('BANKACCTFROM')
-              .ele('BANKID').txt(newestRecord.accountId.bankCode).up()
-              .ele('BRANCHID').txt(newestRecord.accountId.branchNumber).up()
-              .ele('ACCTID').txt(newestRecord.accountId.accountNumber).up()
-              .ele('ACCTTYPE').txt(newestRecord.accountType).up()
+          .ele("STMTRS")
+            .ele("CURDEF").txt(newestRecord.currency).up()
+            .ele("BANKACCTFROM")
+              .ele("BANKID").txt(newestRecord.accountId.bankCode).up()
+              .ele("BRANCHID").txt(newestRecord.accountId.branchNumber).up()
+              .ele("ACCTID").txt(newestRecord.accountId.accountNumber).up()
+              .ele("ACCTTYPE").txt(newestRecord.accountType).up()
             .up()
-            .ele('BANKTRANLIST')
-              .ele('DTSTART').txt(ofxDateFormatter(oldestRecord.operationDate)).up()
-              .ele('DTEND').txt(ofxDateFormatter(newestRecord.operationDate)).up();
+            .ele("BANKTRANLIST")
+              .ele("DTSTART").txt(ofxDateFormatter(oldestRecord.operationDate)).up()
+              .ele("DTEND").txt(ofxDateFormatter(newestRecord.operationDate)).up();
 
     records.forEach((r: Record) => {
       const nameMatches = r.operationName.match(/^(.+)  ([A-Z ]+)$/);
       const name: string = (nameMatches !== null ? nameMatches[1] : r.operationName);
-      const memo: string = (nameMatches !== null ? nameMatches[2] : '');
+      const memo: string = (nameMatches !== null ? nameMatches[2] : "");
       const transId: string = (nameMatches !== null
         ? `${name}${ofxDateFormatter(r.operationDate)}`
         : `${r.operationName}${ofxDateFormatter(r.operationDate)}`
       );
-      transactionsList.ele('STMTTRN')
-        .ele('TRNTYPE').txt(guessTransactionType(r)).up()
-        .ele('DTPOSTED').txt(ofxDateFormatter(r.operationDate)).up()
-        .ele('DTUSER').txt(ofxDateFormatter(r.operationDate)).up()
-        .ele('DTAVAIL').txt(ofxDateFormatter(r.valueDate)).up()
-        .ele('TRNAMT').txt(r.amount.toString()).up()
-        .ele('FITID').txt(`${transId}-${hashAsNumbers(transId)}`).up()
-        .ele('NAME').txt(name).up()
-        .ele('MEMO').txt(memo).up()
-        .ele('CURRENCY').txt(r.currency).up();
+      transactionsList.ele("STMTTRN")
+        .ele("TRNTYPE").txt(guessTransactionType(r)).up()
+        .ele("DTPOSTED").txt(ofxDateFormatter(r.operationDate)).up()
+        .ele("DTUSER").txt(ofxDateFormatter(r.operationDate)).up()
+        .ele("DTAVAIL").txt(ofxDateFormatter(r.valueDate)).up()
+        .ele("TRNAMT").txt(r.amount.toString()).up()
+        .ele("FITID").txt(`${transId}-${hashAsNumbers(transId)}`).up()
+        .ele("NAME").txt(name).up()
+        .ele("MEMO").txt(memo).up()
+        .ele("CURRENCY").txt(r.currency).up();
     });
 
     transactionsList.up()
-      .ele('LEDGERBAL')
-        .ele('BALAMT').txt(lastBalance.toString()).up()
-        .ele('DTASOF').txt(ofxDateFormatter(newestRecord.operationDate)).up()
+      .ele("LEDGERBAL")
+        .ele("BALAMT").txt(lastBalance.toString()).up()
+        .ele("DTASOF").txt(ofxDateFormatter(newestRecord.operationDate)).up()
       .up()
-      .ele('AVAILBAL')
-        .ele('BALAMT').txt(lastBalance.toString()).up()
-        .ele('DTASOF').txt(ofxDateFormatter(newestRecord.operationDate)).up()
+      .ele("AVAILBAL")
+        .ele("BALAMT").txt(lastBalance.toString()).up()
+        .ele("DTASOF").txt(ofxDateFormatter(newestRecord.operationDate)).up()
       .up();
 
     const xmlStr: string = ofx.toString({
       allowEmptyTags: true,
       prettyPrint: true,
-      indent: '    ',
+      indent: "    ",
     });
     // console.log(xmlStr);
 
@@ -238,13 +238,13 @@ fs.open(csvPath, 'r', (err: NodeJS.ErrnoException | null) => {
     const ofxHeaders: OfxHeadersIndexer<string> = config.ofx.headers;
     const ofxHeadersStr: string = Object.keys(ofxHeaders)
       .map((headerKey: string) => `${headerKey}:${ofxHeaders[headerKey]}`)
-      .join('\n');
+      .join("\n");
     // console.log(ofxHeadersStr);
 
     const ofxContentUtf: string = `${ofxHeadersStr}\n\n${xmlStr}`;
     // console.log(ofxContentUtf);
 
-    fs.writeFile(`${fileBaseName}.ofx`, '\ufeff' + ofxContentUtf, { encoding: 'utf-8' }, () => {
+    fs.writeFile(`${fileBaseName}.ofx`, "\ufeff" + ofxContentUtf, { encoding: "utf-8" }, () => {
       console.log(`File ${fileBaseName}.ofx wrote successfully.`);
     });
 
