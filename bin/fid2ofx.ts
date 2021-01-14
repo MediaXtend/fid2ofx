@@ -51,13 +51,13 @@ fs.open(csvPath, "r", (err: NodeJS.ErrnoException | null) => {
     const csvData: string = data.toString();
     // console.log(csvData);
     
-    const lineBreak: RegExp = new RegExp(config.csv.lineBreak);
+    const lineBreak = new RegExp(config.csv.lineBreak);
     const lines: Array<string> = csvData
       .split(lineBreak)
       .map((line: string) => line.trim())
       .filter((line: string) => line.length > 0);
 
-    const semicolonEndingLine: RegExp = /;[ ]*$/;
+    const semicolonEndingLine = /;[ ]*$/;
     const everyLinesHaveEndingSemicolon: boolean = lines.reduce((hasEndingSemicolon: boolean, line: string) => (hasEndingSemicolon && semicolonEndingLine.test(line)), true);
     
     const csvClean: string = (everyLinesHaveEndingSemicolon
@@ -241,7 +241,7 @@ fs.open(csvPath, "r", (err: NodeJS.ErrnoException | null) => {
       .join("\n");
     // console.log(ofxHeadersStr);
 
-    const ofxContentUtf: string = `${ofxHeadersStr}\n\n${xmlStr}`;
+    const ofxContentUtf = `${ofxHeadersStr}\n\n${xmlStr}`;
     // console.log(ofxContentUtf);
 
     fs.writeFile(`${fileBaseName}.ofx`, "\ufeff" + ofxContentUtf, { encoding: "utf-8" }, () => {
