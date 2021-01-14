@@ -1,12 +1,11 @@
 const dateParser = (value: string): Date => {
   const matches = value.match(/([0-3][0-9])\/([0][1-9]|1[0-2])\/(20[1-9][0-9])/);
-  // console.log('matches:', matches);
   if (matches === null) {
     throw new Error(`Unable to parse the following string as a date: "${value}"`);
   }
   return new Date(
     parseInt(matches[3], 10),
-    parseInt(matches[2], 10),
+    parseInt(matches[2], 10) - 1,
     parseInt(matches[1], 10),
     12,
     0,
