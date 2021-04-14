@@ -224,7 +224,7 @@ fs.open(csvPath, "r", (err: NodeJS.ErrnoException | null) => {
         .ele("DTASOF").txt(ofxDateFormatter(newestRecord.operationDate)).up()
       .up();
 
-    const xmlStr: string = ofx.toString({
+    let xmlStr: string = ofx.toString({
       allowEmptyTags: true,
       prettyPrint: true,
       indent: "    ",
@@ -240,6 +240,18 @@ fs.open(csvPath, "r", (err: NodeJS.ErrnoException | null) => {
       .map((headerKey: string) => `${headerKey}:${ofxHeaders[headerKey]}`)
       .join("\n");
     // console.log(ofxHeadersStr);
+
+    // Close tag (SGML)
+    // Default configuration setting: add close tag
+    const closeTag = "closeTag" in config.ofx ? config.ofx.closeTag : true;
+    if (!closeTag) {
+      xmlStr = xmlStr.replace(
+        /<([A-Z]+)>(.*)<\/([A-Z]+)>/g,
+        (match, openingTagName, tagContent, closingTagName) => (
+          openingTagName === closingTagName ? `<${openingTagName}>${tagContent}` : match
+        )
+      );
+    }
 
     const ofxContentUtf = `${ofxHeadersStr}\n\n${xmlStr}`;
     // console.log(ofxContentUtf);

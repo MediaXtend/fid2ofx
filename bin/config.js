@@ -71,6 +71,7 @@ const config = {
             OLDFILEUID: "NONE",
             NEWFILEUID: "NONE",
         },
+        closeTag: false,
     },
 };
 exports.default = config;

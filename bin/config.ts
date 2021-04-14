@@ -78,6 +78,7 @@ const config: Config = {
       OLDFILEUID: "NONE",
       NEWFILEUID: "NONE",
     },
+    closeTag: false,
   },
 };
 

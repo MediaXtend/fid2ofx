@@ -34,6 +34,7 @@ interface Config {
   }
   columns: ConfigColumns;
   ofx: {
-    headers: OfxHeaders
+    headers: OfxHeaders;
+    closeTag: boolean;
   }
 }

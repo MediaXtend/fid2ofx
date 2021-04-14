@@ -172,7 +172,7 @@ fs_1.default.open(csvPath, "r", (err) => {
             .ele("BALAMT").txt(lastBalance.toString()).up()
             .ele("DTASOF").txt(ofxDateFormatter(newestRecord.operationDate)).up()
             .up();
-        const xmlStr = ofx.toString({
+        let xmlStr = ofx.toString({
             allowEmptyTags: true,
             prettyPrint: true,
             indent: "    ",
@@ -183,6 +183,12 @@ fs_1.default.open(csvPath, "r", (err) => {
             .map((headerKey) => `${headerKey}:${ofxHeaders[headerKey]}`)
             .join("\n");
         // console.log(ofxHeadersStr);
+        // Close tag (SGML)
+        // Default configuration setting: add close tag
+        const closeTag = "closeTag" in config_1.default.ofx ? config_1.default.ofx.closeTag : true;
+        if (!closeTag) {
+            xmlStr = xmlStr.replace(/<([A-Z]+)>(.*)<\/([A-Z]+)>/g, (match, openingTagName, tagContent, closingTagName) => (openingTagName === closingTagName ? `<${openingTagName}>${tagContent}` : match));
+        }
         const ofxContentUtf = `${ofxHeadersStr}\n\n${xmlStr}`;
         // console.log(ofxContentUtf);
         fs_1.default.writeFile(`${fileBaseName}.ofx`, "\ufeff" + ofxContentUtf, { encoding: "utf-8" }, () => {
